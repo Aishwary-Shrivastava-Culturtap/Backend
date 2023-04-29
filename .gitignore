@@ -1,3 +1,4 @@
 .env
 __pycache__
 APIdoc.url
+docker-compose.yml
