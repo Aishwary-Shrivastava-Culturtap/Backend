@@ -3,10 +3,8 @@ from .admin.credentials import APP_ID, APP_CERTIFICATE, DB_URL, DB_HEADERS
 from .routers import userAPI, smsAPI, videoAPI, expertAPI, callAPI, plannerAPI, guideAPI, assistanceAPI, paytmGateway, viewsAPI, followAPI, reviewAPI
 from .chat.sockets import appIO
 from .classes.database import database
-from mangum import Mangum
 
 app = FastAPI()
-handler=Mangum(app)
 
 app.add_middleware(
     CORSMiddleware,
