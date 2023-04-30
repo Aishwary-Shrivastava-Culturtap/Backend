@@ -17,8 +17,8 @@ class videoModel_View(BaseModel):
     genre: str
     title: str
     description: str
-    pros: str
-    cons: str
+    pros: list
+    cons: list
     rating: float
     shared: bool
     draft: bool
