@@ -3,33 +3,29 @@ import asyncio
 client = socketio.AsyncClient()
 
 
-
 async def main():
-    await client.connect('http://13.127.127.97:8080', socketio_path='/chat/socket.io',wait_timeout = 10)
+    await client.connect('http://13.127.127.97:8080', socketio_path='/chat/socket.io', wait_timeout=10)
     await client.wait()
 
 
 @client.event
 async def connect():
     print("I'm connected!")
-    uid=int(input('uid : '))
-    await client.emit('add-user',uid)
-    
+    uid = int(input('uid : '))
+    await client.emit('add-user', uid)
+
 
 @client.on('add-user')
 async def userAdd(data):
     global MY_NAME
-    MY_NAME=data['name']
+    MY_NAME = data['name']
     a = int(input('join ? '))
     if a == 1:
-        data =input('room : ')
+        data = input('room : ')
         await client.emit('join-room', data=data)
 
     else:
         await client.emit('create-room')
-
-
-
 
 
 @client.on('create-room')
@@ -39,7 +35,7 @@ async def create(room):
 
 @client.on('join-room')
 async def joinRoom(data):
-    if data['name'].lower()!=MY_NAME.lower():
+    if data['name'].lower() != MY_NAME.lower():
         print(f"{data['name']} joined the chat...")
     msg = input('me : ')
     await client.emit('send-msg', data=msg)
@@ -47,8 +43,9 @@ async def joinRoom(data):
 
 @client.on('send-msg')
 async def msg(data):
-    if data['name'].lower()!=MY_NAME.lower():
-        print(f"{data['name']} : {data['message']}\ntimestamp : {data['timestamp']}")
+    if data['name'].lower() != MY_NAME.lower():
+        print(
+            f"{data['name']} : {data['message']}\ntimestamp : {data['timestamp']}")
     msg = input('me : ')
     await client.emit('send-msg', data=msg)
 

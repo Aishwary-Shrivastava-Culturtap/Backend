@@ -25,18 +25,17 @@ async def disconnect(sid):
     print('disconnected sid :', sid)
     if sid in usersId.keys():
         if None not in usersId[sid]:
-            userInfo=usersId.get(sid)
-            if len(userInfo)==4:
-                uid, room, name, phoneNo=userInfo
+            userInfo = usersId.get(sid)
+            if len(userInfo) == 4:
+                uid, room, name, phoneNo = userInfo
                 message = {"uid": uid, "name": name, "msg": "exit",
-                        'timestamp': time.strftime("%Y-%m-%d %H:%M %z")}
+                           'timestamp': time.strftime("%Y-%m-%d %H:%M %z")}
                 msg[room].append(message)
                 chatApp.update(
                     room=room, messages=msg[room], completedOn=message['timestamp'])
                 data = {'name': name, "room": room}
                 await sio.emit('leave-room', data=data, room=room)
     del usersId[sid]
-    
 
 
 @sio.on('add-user')
@@ -54,15 +53,15 @@ async def addUser(sid, uid):
 
 @sio.on('send-request')
 async def sendRequest(sid, data):
-    currentUID,phoneNo = usersId.get(sid)[0],usersId.get(sid)[2]
+    currentUID, phoneNo = usersId.get(sid)[0], usersId.get(sid)[2]
     availableUsers = get_data_by_location(
         currentUID=currentUID, maxKm=20, filtor={'bta': True})
     for user in availableUsers:
-        connectedUsers = [(key,user['distance']) for key,
+        connectedUsers = [(key, user['distance']) for key,
                           value in usersId.items() if value[0] == user['uid']]
     for key in connectedUsers:
-        data['distance']=key[1]
-        await sio.emit('get-request', data={'msg':data,'phone':phoneNo}, to=key[0])
+        data['distance'] = key[1]
+        await sio.emit('get-request', data={'msg': data, 'phone': phoneNo}, to=key[0])
     await sio.emit('request-response', data=len(connectedUsers), to=sid)
 
 
@@ -74,7 +73,7 @@ async def createRoom(sid):
         room = sid
         msg[room] = []
         sio.enter_room(sid=room, room=room)
-        createdOn=time.strftime("%Y-%m-%d %H:%M %z")
+        createdOn = time.strftime("%Y-%m-%d %H:%M %z")
         chatApp.add(room=room, user1=int(uid), by=name,
                     createdOn=createdOn)
         await sio.emit('create-room', data=room, to=room)
@@ -100,7 +99,7 @@ async def joinRoom(sid, room):
 
             chatApp.update(room=room, user2=uid, with_=name)
             msg[room].append(message)
-            await sio.emit("join-room", data={'name':name,'phoneNo':phoneNo}, room=room)
+            await sio.emit("join-room", data={'name': name, 'phoneNo': phoneNo}, room=room)
         else:
             await sio.emit("join-room", "already full...", to=sid)
     except:

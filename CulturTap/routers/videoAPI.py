@@ -9,7 +9,7 @@ from ..constants import BUCKET, VIDEOS, FILETYPES, THUMBNAILS
 router = APIRouter(prefix='/videos', tags=['Videos'])
 user = database.Users(DB_URL, DB_HEADERS)
 history = database.History(DB_URL, DB_HEADERS)
-search = database.Search(DB_URL,DB_HEADERS)
+search = database.Search(DB_URL, DB_HEADERS)
 
 # --VIDEO DATA
 client = database.Videos(url=DB_URL, header=DB_HEADERS)
@@ -72,11 +72,11 @@ def get_data_by_location(CurrentUID: int, maxKm: float, filtor: dict, end: int, 
             if minKm <= lat_long_difference((lat2, long2), (lat1, long1)) >= maxKm:
                 videos.append(i)
         df = pd.DataFrame(videos)
-        views=database.views(DB_URL,DB_HEADERS).show(uid=CurrentUID)
-        notShownId=[i['videoId'] for i in views]
+        views = database.views(DB_URL, DB_HEADERS).show(uid=CurrentUID)
+        notShownId = [i['videoId'] for i in views]
         for i in notShownId:
             try:
-                df.drop(df[df['videoId']==i].index,inplace=True)
+                df.drop(df[df['videoId'] == i].index, inplace=True)
             except:
                 continue
         df["uploadTime"] = df["uploadTime"].astype('datetime64[ns]')
@@ -93,39 +93,40 @@ def get_data_by_location(CurrentUID: int, maxKm: float, filtor: dict, end: int, 
         df.sort_values(by=['views', "likes"], inplace=True, ascending=False)
 
         if flag:
-            videos+=df.to_dict(orient='records')[:-10]
+            videos += df.to_dict(orient='records')[:-10]
         else:
-            videos+=df.to_dict(orient='records')
+            videos += df.to_dict(orient='records')
 
         return videos[start:end]
     except Exception as e:
         print(e)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
-@router.get("/location-follow/{uid}",status_code=status.HTTP_200_OK,response_model=list[videoModel_View])
-def getFollowedLocation(uid:int,end:int,start:int=0):
+
+@router.get("/location-follow/{uid}", status_code=status.HTTP_200_OK, response_model=list[videoModel_View])
+def getFollowedLocation(uid: int, end: int, start: int = 0):
     try:
-        userData=database.Users(DB_URL,DB_HEADERS).show(uid=uid)[0]
-        following=userData['locationFollow']
-        videos=[]
+        userData = database.Users(DB_URL, DB_HEADERS).show(uid=uid)[0]
+        following = userData['locationFollow']
+        videos = []
         for i in following:
-            videos+=client.show(**{'city':i})
+            videos += client.show(**{'city': i})
         random.shuffle(videos)
         return videos[start:end]
     except Exception as e:
         print(e)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST)
 
+
 @router.get('/search')
-def get_searched_data(query:str,end:int,start:int=0):
-    results=search.show(field='data',query=query)
+def get_searched_data(query: str, end: int, start: int = 0):
+    results = search.show(field='data', query=query)
     df = pd.DataFrame(results)
     videoList = df['videoId'].to_list()
-    allSearchedVideos=[get_video_by_videoId(i) for i in videoList]
+    allSearchedVideos = [get_video_by_videoId(i) for i in videoList]
     videosDf = pd.DataFrame(allSearchedVideos)
     videosDf.sort_values(by=['views', "likes"], inplace=True, ascending=False)
     return videosDf.to_dict(orient='records')[start:end]
-
 
 
 @router.post('/add', status_code=status.HTTP_201_CREATED)
@@ -133,11 +134,11 @@ def adding_video_content(params: videoModel_Post):
     params = params.dict()
     params['uploadTime'] = time.strftime('%Y-%m-%d %H:%M:%S')
     try:
-        address=address_finder(params['lat'],params['long'])
-        params['place'],params['district'],params['state'],params['country']=address.values()
+        address = address_finder(params['lat'], params['long'])
+        params['place'], params['district'], params['state'], params['country'] = address.values()
         response = client.add(**params)
         params.pop('uid')
-        searchField={"videoId":response['videoId'],'data':str(params)}
+        searchField = {"videoId": response['videoId'], 'data': str(params)}
         search.add(**searchField)
         history.add(**{'type': 'video', 'videoId': response['videoId'],
                     'uid': response['uid'], 'status': 'added', 'uploadTime': params['uploadTime']})
@@ -156,13 +157,15 @@ async def adding_video(videoId: int, token: str, video: list[UploadFile], thumbn
     try:
         toUpdate = {}
         videoData = get_video_by_videoId(videoId)
-        expertCard=database.expertCard(DB_URL,DB_HEADERS)
-        expertCardData=expertCard.show(uid=videoData['uid'])
+        expertCard = database.expertCard(DB_URL, DB_HEADERS)
+        expertCardData = expertCard.show(uid=videoData['uid'])
         try:
-            expertCardLocation=expertCardData['expertLocation']+','+videoData['district']
+            expertCardLocation = expertCardData['expertLocation'] + \
+                ','+videoData['district']
         except:
-            expertCardLocation=videoData['district']
-        expertCard.update(uid=videoData['uid'],**{'expertLocation':expertCardLocation})
+            expertCardLocation = videoData['district']
+        expertCard.update(uid=videoData['uid'], **
+                          {'expertLocation': expertCardLocation})
         videos_keys = []
         urls = []
         if thumbnails:
@@ -209,7 +212,8 @@ def update_video(videoId: int, params: dict):
         try:
             Likes = database.likes(DB_URL, DB_HEADERS)
             if params.get('views') != None:
-                params['views'] = client.show(videoId=videoId)[0]["views"]+params['views']
+                params['views'] = client.show(videoId=videoId)[
+                    0]["views"]+params['views']
 
             likes = params.get('likes')
             if likes != None:
@@ -228,7 +232,7 @@ def update_video(videoId: int, params: dict):
         history.add(**{'type': 'video', 'videoId': videoId,
                     'uid': video['uid'], 'status': 'updated', 'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'), 'updates': params})
         for item, value in params.items():
-            video[item]=value
+            video[item] = value
         video.pop("uid")
         video.pop("videoId")
         video.pop('_id')
@@ -237,7 +241,7 @@ def update_video(videoId: int, params: dict):
         video.pop('thumbURL')
         video.pop('keyTHUMB')
         search.delete(videoId=videoId)
-        searchField={"videoId":videoId,'data':str(video)}
+        searchField = {"videoId": videoId, 'data': str(video)}
         search.add(**searchField)
         response = client.update(videoId, **params)
         return response
@@ -256,7 +260,7 @@ def delete_video(videoId: int):
         for i in keys:
             s3.delete(bucket=BUCKET, key=i)
     s3.delete(bucket=BUCKET, key=videoData.get('keyTHUMB'))
-    database.views(DB_URL,DB_HEADERS).delete(videoId=videoId)
+    database.views(DB_URL, DB_HEADERS).delete(videoId=videoId)
     client.delete(videoId=videoId)
     search.delete(videoId=videoId)
     history.add(**{'type': 'video', 'videoId': videoId,

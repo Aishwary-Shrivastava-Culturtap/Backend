@@ -77,8 +77,8 @@ def adding_user(params: userModel, token: str):
         if users.matchUserDetail(countryCode=params['countryCode'], phoneNo=params['phoneNo']):
             return {'message': "already existed", 'uid': users.uid}
         if params['lat'] and params['long']:
-            address=address_finder(params['lat'],params['long'])
-            params['place'],params['district'],params['state'],params['country']=address.values()
+            address = address_finder(params['lat'], params['long'])
+            params['place'], params['district'], params['state'], params['country'] = address.values()
         data = users.add(**params)
         expert = {"uid": data['uid'], "expertLocation": None,
                   "visitedPlace": 0, "coveredPlace": 0, "rating": 0, "status": 'Low'}
@@ -144,12 +144,12 @@ async def adding_pics(uid: int, action: str = 'add', profilePic: list[UploadFile
 def update_data(uid: int, params: dict):
     try:
         if params['lat'] and params['long']:
-            address=address_finder(params['lat'],params['long'])
-            params['place'],params['district'],params['state'],params['country']=address.values()
-        if followed:=params.get('locationFollow'):
-            userData=users.show(uid=uid)[0]
-            locations=userData['locationFollow']
-            params["locationFollow"]=locations.append(followed)
+            address = address_finder(params['lat'], params['long'])
+            params['place'], params['district'], params['state'], params['country'] = address.values()
+        if followed := params.get('locationFollow'):
+            userData = users.show(uid=uid)[0]
+            locations = userData['locationFollow']
+            params["locationFollow"] = locations.append(followed)
         if 'availableTime' in params.keys() != None:
             if 'bandwidth' not in params.keys():
                 return {'missing': 'bandwidth'}
@@ -203,7 +203,7 @@ def update_data(uid: int, params: dict):
 @router.delete('/delete/{uid}', status_code=status.HTTP_204_NO_CONTENT)
 def delete_User(uid: int):
     users.delete(uid=uid)
-    database.views(DB_URL,DB_HEADERS).delete(uid=uid)
+    database.views(DB_URL, DB_HEADERS).delete(uid=uid)
     try:
         database.Videos(DB_URL, DB_HEADERS).delete(uid=uid)
     except:

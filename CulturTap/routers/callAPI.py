@@ -91,7 +91,7 @@ async def add_call(params: scheduleCallAdd):
 async def update_call(callId: str, params: dict):
     try:
         response = client.update({'_id': ObjectId(callId)}, **params)
-        call=client.show(_id=ObjectId(callId))[0]
+        call = client.show(_id=ObjectId(callId))[0]
         dataId = call['requestTo']
         data = user.show(uid=dataId)[0]
         pendingRequests = data['pendingRequests']

@@ -58,7 +58,6 @@ class database:
             "filter": params
         })
         return requests.request("POST", url=self.url+endpoint, headers=self.headers, data=payload).json()
-    
 
     class Users:
         def __init__(self, url: str, header: dict) -> None:
@@ -260,14 +259,14 @@ class database:
             self.collection = 'History'
 
         def add(self, **jsonData):
-            return  self.client.insertOne(collection=self.collection, **jsonData)
+            return self.client.insertOne(collection=self.collection, **jsonData)
 
         def show(self, **params):
             return self.client.find(collection=self.collection, **params)['documents']
 
         def delete(self, **params):
             return self.client.deleteOne(collection=self.collection, **params)
-        
+
     class views:
         def __init__(self, url: str, header: dict) -> None:
             self.client = database(url, header)
@@ -284,7 +283,7 @@ class database:
 
         def deleteMany(self, **params):
             return self.client.deleteMany(collection=self.collection, **params)
-        
+
     class connections:
         def __init__(self, url: str, header: dict) -> None:
             self.client = database(url, header)
@@ -301,7 +300,7 @@ class database:
 
         def deleteMany(self, **params):
             return self.client.deleteMany(collection=self.collection, **params)
-        
+
     class Reviews:
         def __init__(self, url: str, header: dict) -> None:
             self.client = database(url, header)
@@ -318,7 +317,7 @@ class database:
 
         def deleteMany(self, **params):
             return self.client.deleteMany(collection=self.collection, **params)
-        
+
     class Search:
         def __init__(self, url: str, header: dict) -> None:
             self.client = database(url, header)
@@ -328,9 +327,9 @@ class database:
             return self.client.insertOne(collection=self.collection, **jsonData)
 
         def show(self, field, query=None):
-            if not(query):
+            if not (query):
                 return self.client.find(collection=self.collection, **field)['documents']
-            return self.client.find(collection=self.collection, **{field: { "$regex": query,"$options" :'i'} })['documents']
+            return self.client.find(collection=self.collection, **{field: {"$regex": query, "$options": 'i'}})['documents']
 
         def delete(self, **params):
             return self.client.deleteOne(collection=self.collection, **params)

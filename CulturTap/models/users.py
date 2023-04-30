@@ -11,10 +11,10 @@ class userModel(BaseModel):
     gender: str = None
     languageSpeak: str = None
     address: str = None
-    place:str = None
-    district:str = None
-    state:str = None
-    country:str = None
+    place: str = None
+    district: str = None
+    state: str = None
+    country: str = None
     quote: constr(max_length=100) = None
     followers: int = 0
     followings: int = 0
@@ -31,6 +31,7 @@ class userModel(BaseModel):
     availableTime: list[str] = None  # ["6:00:00 am/pm","9:00:00 am/pm"]
     bandwidth: str = 'daily'
 
+
 class followList(BaseModel):
-    followed_by:int
-    followed_to:int
+    followed_by: int
+    followed_to: int

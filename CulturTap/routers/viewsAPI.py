@@ -10,6 +10,6 @@ client = database.views(url=DB_URL, header=DB_HEADERS)
 
 
 @router.post('/seen/{uid}')
-def videoSeen(uid:int,videoId:int):
-    client.add(uid=uid,videoId=videoId)
-    return {'msg':"seen"}
+def videoSeen(uid: int, videoId: int):
+    client.add(uid=uid, videoId=videoId)
+    return {'msg': "seen"}

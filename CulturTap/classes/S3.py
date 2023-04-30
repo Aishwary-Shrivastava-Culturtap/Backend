@@ -8,9 +8,11 @@ class Boto3:
             aws_access_key_id=self.access_key,
             aws_secret_access_key=self.secret_key
         )
-    def upload(self, file:bytes, key: str, folder: str, bucket:str):
+
+    def upload(self, file: bytes, key: str, folder: str, bucket: str):
         key = folder+key
-        self.client.put_object(Bucket=bucket, Body=file, Key=key,ACL='public-read')
-    
-    def delete(self, bucket:str,key:str):
+        self.client.put_object(Bucket=bucket, Body=file,
+                               Key=key, ACL='public-read')
+
+    def delete(self, bucket: str, key: str):
         self.client.delete_object(Bucket=bucket, Key=key)
