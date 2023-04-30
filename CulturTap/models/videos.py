@@ -38,8 +38,8 @@ class videoModel_Post(BaseModel):
     genre: str
     title: str
     description: str
-    pros: str
-    cons: str
+    pros: list
+    cons: list
     rating: float = 0
     shared: bool = True
     draft: bool = True
