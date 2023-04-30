@@ -137,7 +137,7 @@ def adding_video_content(params: videoModel_Post):
         params['place'],params['district'],params['state'],params['country']=address.values()
         response = client.add(**params)
         params.pop('uid')
-        searchField={"videoId":response['videoId'],'data':params.values()}
+        searchField={"videoId":response['videoId'],'data':str(params)}
         search.add(**searchField)
         history.add(**{'type': 'video', 'videoId': response['videoId'],
                     'uid': response['uid'], 'status': 'added', 'uploadTime': params['uploadTime']})
@@ -152,7 +152,7 @@ def adding_video_content(params: videoModel_Post):
 async def adding_video(videoId: int, token: str, video: list[UploadFile], thumbnails: list[UploadFile] = None, action: str = "add"):
     if token != TOKEN:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail='Token is not valid')
+            status_code=status.HTTP_401_UNAUTHORIZED, detail='Token is not valid')
     try:
         toUpdate = {}
         videoData = get_video_by_videoId(videoId)
@@ -231,12 +231,18 @@ def update_video(videoId: int, params: dict):
             video[item]=value
         video.pop("uid")
         video.pop("videoId")
+        video.pop('_id')
+        video.pop('url')
+        video.pop('videoKeys')
+        video.pop('thumbURL')
+        video.pop('keyTHUMB')
         search.delete(videoId=videoId)
-        searchField={"videoId":video['videoId'],'data':str(video)}
+        searchField={"videoId":videoId,'data':str(video)}
         search.add(**searchField)
         response = client.update(videoId, **params)
         return response
     except Exception as e:
+        print(e)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST)
 
