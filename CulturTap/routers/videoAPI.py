@@ -136,7 +136,8 @@ def adding_video_content(params: videoModel_Post):
         address=address_finder(params['lat'],params['long'])
         params['place'],params['district'],params['state'],params['country']=address.values()
         response = client.add(**params)
-        searchField={"videoId":response['videoId'],'data':'|'.join([value for value in params.values()])}
+        params.pop('uid')
+        searchField={"videoId":response['videoId'],'data':params.values()}
         search.add(**searchField)
         history.add(**{'type': 'video', 'videoId': response['videoId'],
                     'uid': response['uid'], 'status': 'added', 'uploadTime': params['uploadTime']})
@@ -226,6 +227,13 @@ def update_video(videoId: int, params: dict):
             pass
         history.add(**{'type': 'video', 'videoId': videoId,
                     'uid': video['uid'], 'status': 'updated', 'timestamp': time.strftime('%Y-%m-%d %H:%M:%S'), 'updates': params})
+        for item, value in params.items():
+            video[item]=value
+        video.pop("uid")
+        video.pop("videoId")
+        search.delete(videoId=videoId)
+        searchField={"videoId":video['videoId'],'data':str(video)}
+        search.add(**searchField)
         response = client.update(videoId, **params)
         return response
     except Exception as e:

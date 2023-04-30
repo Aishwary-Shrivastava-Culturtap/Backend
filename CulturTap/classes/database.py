@@ -327,7 +327,9 @@ class database:
         def add(self, **jsonData):
             return self.client.insertOne(collection=self.collection, **jsonData)
 
-        def show(self, field, query):
+        def show(self, field, query=None):
+            if query:
+                self.client.find(collection=self.collection, **field)['documents']
             return self.client.find(collection=self.collection, **{field: { "$regex": query,"$options" :'i'} })['documents']
 
         def delete(self, **params):
