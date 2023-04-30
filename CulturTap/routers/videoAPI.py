@@ -157,7 +157,7 @@ async def adding_video(videoId: int, token: str, video: list[UploadFile], thumbn
         toUpdate = {}
         videoData = get_video_by_videoId(videoId)
         expertCard=database.expertCard(DB_URL,DB_HEADERS)
-        expertCardData=expertCard.show(videoData['uid'])
+        expertCardData=expertCard.show(uid=videoData['uid'])
         try:
             expertCardLocation=expertCardData['expertLocation']+','+videoData['district']
         except:
