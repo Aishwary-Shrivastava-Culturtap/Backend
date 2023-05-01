@@ -149,7 +149,7 @@ def adding_video_content(params: videoModel_Post):
             status_code=status.HTTP_400_BAD_REQUEST)
 
 
-@router.post('/add-video', status_code=status.HTTP_200_OK, response_model=s3Response)
+@router.post('/add-video', status_code=status.HTTP_200_OK)
 async def adding_video(videoId: int, token: str, video: list[UploadFile],action: str = "add"):
     if token != TOKEN:
         raise HTTPException(
@@ -204,8 +204,8 @@ async def adding_video(videoId: int, token: str, video: list[UploadFile],action:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST)
 
-
-async def adding_video(videoId: int, token: str,thumbnails: list[UploadFile]):
+@router.post('/add-thumbnail', status_code=status.HTTP_200_OK)
+async def adding_thumbnail(videoId: int, token: str,thumbnails: list[UploadFile]):
     if token != TOKEN:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Token is not valid')
