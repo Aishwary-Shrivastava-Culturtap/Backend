@@ -6,6 +6,7 @@ class Settings(BaseSettings):
     DB_API: str
     KEY_ID: str
     SECRET_KEY: str
+    AWS_ACCOUNT:str
     MID: str
     KEY: str
     CLIENT_ID: str
@@ -36,6 +37,7 @@ DB_HEADERS = {
 # AWS S3
 KEY_ID = settings.KEY_ID
 SECRET_KEY = settings.SECRET_KEY
+AWS_ACCOUNT = settings.AWS_ACCOUNT
 
 # Paytm
 MID = settings.MID

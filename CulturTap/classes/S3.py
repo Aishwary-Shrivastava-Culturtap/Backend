@@ -1,8 +1,9 @@
 class Boto3:
-    def __init__(self, access_key: str, secret_key: str, bucket: str) -> None:
+    def __init__(self, access_key: str, secret_key: str, aws_account:str) -> None:
         import boto3
         self.access_key = access_key
         self.secret_key = secret_key
+        self.aws_account = aws_account
         self.client = boto3.client(
             's3',
             aws_access_key_id=self.access_key,
@@ -15,4 +16,4 @@ class Boto3:
                                Key=key, ACL='public-read')
 
     def delete(self, bucket: str, key: str):
-        self.client.delete_object(Bucket=bucket, Key=key)
+        self.client.delete_object(Bucket=bucket, Key=key, ExpectedBucketOwner=self.aws_account)

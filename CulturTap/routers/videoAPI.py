@@ -3,7 +3,7 @@ from ..utils import *
 from ..classes.database import database
 from ..classes.S3 import Boto3
 from ..models.videos import videoModel_View, videoModel_Post, s3Response
-from ..admin.credentials import DB_URL, DB_HEADERS, KEY_ID, SECRET_KEY, TOKEN
+from ..admin.credentials import DB_URL, DB_HEADERS, KEY_ID, SECRET_KEY, TOKEN, AWS_ACCOUNT
 from ..constants import BUCKET, VIDEOS, FILETYPES, THUMBNAILS
 
 router = APIRouter(prefix='/videos', tags=['Videos'])
@@ -13,7 +13,7 @@ search = database.Search(DB_URL, DB_HEADERS)
 
 # --VIDEO DATA
 client = database.Videos(url=DB_URL, header=DB_HEADERS)
-s3 = Boto3(KEY_ID, SECRET_KEY, BUCKET)
+s3 = Boto3(KEY_ID, SECRET_KEY, AWS_ACCOUNT)
 
 
 @router.get("/get", status_code=status.HTTP_200_OK, response_model=list[videoModel_View])
@@ -150,7 +150,7 @@ def adding_video_content(params: videoModel_Post):
 
 
 @router.post('/add-video', status_code=status.HTTP_200_OK, response_model=s3Response)
-async def adding_video(videoId: int, token: str, video: list[UploadFile], thumbnails: list[UploadFile] = None, action: str = "add"):
+async def adding_video(videoId: int, token: str, video: list[UploadFile],action: str = "add"):
     if token != TOKEN:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Token is not valid')
@@ -168,15 +168,15 @@ async def adding_video(videoId: int, token: str, video: list[UploadFile], thumbn
                           {'expertLocation': expertCardLocation})
         videos_keys = []
         urls = []
-        if thumbnails:
-            if thumbnails[0].content_type in FILETYPES:
-                thumbKey = f'{uuid4()}.{FILETYPES[thumbnails[0].content_type]}'
-                thumbnail = await thumbnails[0].read()
-                s3.upload(file=thumbnail, key=thumbKey,
-                          folder=THUMBNAILS, bucket=BUCKET)
-                urlTHUMB = f'https://{BUCKET}.s3.ap-south-1.amazonaws.com/{THUMBNAILS}{thumbKey}'
-                toUpdate['thumbURL'] = urlTHUMB
-                toUpdate['keyTHUMB'] = f'{THUMBNAILS}{thumbKey}'
+        # if thumbnails:
+        #     if thumbnails[0].content_type in FILETYPES:
+        #         thumbKey = f'{uuid4()}.{FILETYPES[thumbnails[0].content_type]}'
+        #         thumbnail = await thumbnails[0].read()
+        #         s3.upload(file=thumbnail, key=thumbKey,
+        #                   folder=THUMBNAILS, bucket=BUCKET)
+        #         urlTHUMB = f'https://{BUCKET}.s3.ap-south-1.amazonaws.com/{THUMBNAILS}{thumbKey}'
+        #         toUpdate['thumbURL'] = urlTHUMB
+        #         toUpdate['keyTHUMB'] = f'{THUMBNAILS}{thumbKey}'
 
         for item in video:
             if item.content_type in FILETYPES:
@@ -204,6 +204,27 @@ async def adding_video(videoId: int, token: str, video: list[UploadFile], thumbn
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST)
 
+
+async def adding_video(videoId: int, token: str,thumbnails: list[UploadFile]):
+    if token != TOKEN:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail='Token is not valid')
+    try:
+        toUpdate = {}
+        if thumbnails[0].content_type in FILETYPES:
+            thumbKey = f'{uuid4()}.{FILETYPES[thumbnails[0].content_type]}'
+            thumbnail = await thumbnails[0].read()
+            s3.upload(file=thumbnail, key=thumbKey,
+                        folder=THUMBNAILS, bucket=BUCKET)
+            urlTHUMB = f'https://{BUCKET}.s3.ap-south-1.amazonaws.com/{THUMBNAILS}{thumbKey}'
+            toUpdate['thumbURL'] = urlTHUMB
+            toUpdate['keyTHUMB'] = f'{THUMBNAILS}{thumbKey}'
+            update_video(videoId, toUpdate)
+            return toUpdate
+    except Exception as e:
+        print(e)
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST)
 
 @router.patch('/update/{videoId}', status_code=status.HTTP_202_ACCEPTED)
 def update_video(videoId: int, params: dict):
@@ -236,10 +257,13 @@ def update_video(videoId: int, params: dict):
         video.pop("uid")
         video.pop("videoId")
         video.pop('_id')
-        video.pop('url')
-        video.pop('videoKeys')
-        video.pop('thumbURL')
-        video.pop('keyTHUMB')
+        if video.get('url'):
+            video.pop('url')
+            video.pop('videoKeys')
+        
+        if video.get('thumbURL'):
+            video.pop('thumbURL')
+            video.pop('keyTHUMB')
         search.delete(videoId=videoId)
         searchField = {"videoId": videoId, 'data': str(video)}
         search.add(**searchField)
