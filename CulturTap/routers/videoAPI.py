@@ -150,7 +150,7 @@ def adding_video_content(params: videoModel_Post):
 
 
 @router.post('/add-video', status_code=status.HTTP_200_OK)
-async def adding_video(videoId: int, token: str, video: list[UploadFile],action: str = "add"):
+async def adding_video(videoId: int, token: str, video: list[UploadFile], action: str = "add"):
     if token != TOKEN:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Token is not valid')
@@ -168,15 +168,6 @@ async def adding_video(videoId: int, token: str, video: list[UploadFile],action:
                           {'expertLocation': expertCardLocation})
         videos_keys = []
         urls = []
-        # if thumbnails:
-        #     if thumbnails[0].content_type in FILETYPES:
-        #         thumbKey = f'{uuid4()}.{FILETYPES[thumbnails[0].content_type]}'
-        #         thumbnail = await thumbnails[0].read()
-        #         s3.upload(file=thumbnail, key=thumbKey,
-        #                   folder=THUMBNAILS, bucket=BUCKET)
-        #         urlTHUMB = f'https://{BUCKET}.s3.ap-south-1.amazonaws.com/{THUMBNAILS}{thumbKey}'
-        #         toUpdate['thumbURL'] = urlTHUMB
-        #         toUpdate['keyTHUMB'] = f'{THUMBNAILS}{thumbKey}'
 
         for item in video:
             if item.content_type in FILETYPES:
@@ -204,8 +195,9 @@ async def adding_video(videoId: int, token: str, video: list[UploadFile],action:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST)
 
+
 @router.post('/add-thumbnail', status_code=status.HTTP_200_OK)
-async def adding_thumbnail(videoId: int, token: str,thumbnails: list[UploadFile]):
+async def adding_thumbnail(videoId: int, token: str, thumbnails: list[UploadFile]):
     if token != TOKEN:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Token is not valid')
@@ -215,7 +207,7 @@ async def adding_thumbnail(videoId: int, token: str,thumbnails: list[UploadFile]
             thumbKey = f'{uuid4()}.{FILETYPES[thumbnails[0].content_type]}'
             thumbnail = await thumbnails[0].read()
             s3.upload(file=thumbnail, key=thumbKey,
-                        folder=THUMBNAILS, bucket=BUCKET)
+                      folder=THUMBNAILS, bucket=BUCKET)
             urlTHUMB = f'https://{BUCKET}.s3.ap-south-1.amazonaws.com/{THUMBNAILS}{thumbKey}'
             toUpdate['thumbURL'] = urlTHUMB
             toUpdate['keyTHUMB'] = f'{THUMBNAILS}{thumbKey}'
@@ -225,6 +217,7 @@ async def adding_thumbnail(videoId: int, token: str,thumbnails: list[UploadFile]
         print(e)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST)
+
 
 @router.patch('/update/{videoId}', status_code=status.HTTP_202_ACCEPTED)
 def update_video(videoId: int, params: dict):
@@ -260,10 +253,12 @@ def update_video(videoId: int, params: dict):
         if video.get('url'):
             video.pop('url')
             video.pop('videoKeys')
-        
+
         if video.get('thumbURL'):
             video.pop('thumbURL')
+        if video.get('keyTHUMB'):
             video.pop('keyTHUMB')
+
         search.delete(videoId=videoId)
         searchField = {"videoId": videoId, 'data': str(video)}
         search.add(**searchField)
