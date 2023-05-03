@@ -150,7 +150,7 @@ def adding_video_content(params: videoModel_Post):
 
 
 @router.post('/add-video', status_code=status.HTTP_200_OK)
-async def adding_video(videoId: int, token: str, video: list[UploadFile], action: str = "add"):
+async def adding_video(videoId: int, token: str, video: list[UploadFile],thumbnails: list[UploadFile]=None, action: str = "add"):
     if token != TOKEN:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail='Token is not valid')
@@ -168,6 +168,16 @@ async def adding_video(videoId: int, token: str, video: list[UploadFile], action
                           {'expertLocation': expertCardLocation})
         videos_keys = []
         urls = []
+        if thumbnails:
+            if thumbnails[0].content_type in FILETYPES:
+                thumbKey = f'{uuid4()}.{FILETYPES[thumbnails[0].content_type]}'
+                thumbnail = await thumbnails[0].read()
+                s3.upload(file=thumbnail, key=thumbKey,
+                        folder=THUMBNAILS, bucket=BUCKET)
+                urlTHUMB = f'https://{BUCKET}.s3.ap-south-1.amazonaws.com/{THUMBNAILS}{thumbKey}'
+                toUpdate['thumbURL'] = urlTHUMB
+                toUpdate['keyTHUMB'] = f'{THUMBNAILS}{thumbKey}'
+                update_video(videoId, toUpdate)
 
         for item in video:
             if item.content_type in FILETYPES:
@@ -250,7 +260,7 @@ def update_video(videoId: int, params: dict):
         video.pop("uid")
         video.pop("videoId")
         video.pop('_id')
-        if video.get('url'):
+        if video.get('videoKeys'):
             video.pop('url')
             video.pop('videoKeys')
 
