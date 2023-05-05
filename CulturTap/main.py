@@ -1,6 +1,6 @@
 from . import *
 from .admin.credentials import APP_ID, APP_CERTIFICATE, DB_URL, DB_HEADERS
-from .routers import userAPI, smsAPI, videoAPI, expertAPI, callAPI, plannerAPI, guideAPI, assistanceAPI, paytmGateway, viewsAPI, followAPI, reviewAPI
+from .routers import userAPI, smsAPI, videoAPI, expertAPI, callAPI, plannerAPI, guideAPI, assistanceAPI, paytmGateway, viewsAPI, followAPI, reviewAPI, locationAPI
 from .chat.sockets import appIO
 from .classes.database import database
 
@@ -40,6 +40,7 @@ async def get_Logs(types: str, params: dict = {}):
 # Routers
 app.mount('/chat', app=appIO)
 app.mount('/payment-gateway', app=paytmGateway.router)
+app.include_router(locationAPI.router)
 app.include_router(userAPI.router)
 app.include_router(viewsAPI.router)
 app.include_router(followAPI.router)
