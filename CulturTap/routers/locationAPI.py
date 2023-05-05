@@ -1,6 +1,8 @@
 from .. import *
 from ..utils import address_finder_full
+
 router = APIRouter(tags=['Location'])
+
 @router.get("/location", status_code=status.HTTP_200_OK,)
 def get_data(lat: str,long:str):
     try:
