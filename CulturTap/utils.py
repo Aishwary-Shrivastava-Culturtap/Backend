@@ -35,8 +35,23 @@ def address_finder(lat, long):
     # Get location with geocode
     location = geolocator.geocode(lat+","+long)
     data = list(location)[0].split(', ')
-    address = {'place': data[1].lower(), 'district': data[-4].lower(),
+    address = {'place': data[0].lower(), 'district': data[-4].lower(),
                'state': data[-3].lower(), 'country': data[-1].lower()}
+    return address
+
+def address_finder_full(lat, long):
+    lat, long = str(lat), str(long)
+    # Import module
+    from geopy.geocoders import Nominatim
+
+    # Initialize Nominatim API
+    geolocator = Nominatim(user_agent="geoapiExercises")
+
+    # Get location with geocode
+    location = geolocator.geocode(lat+","+long)
+    data = list(location)[0].split(', ')
+    address = {'location':data[0].lower(),'place': data[1].lower(), 'district': data[-4].lower(),
+               'state': data[-3].lower(), 'country': data[-1].lower(),'pincode':data[-2].lower()}
     return address
 
 

@@ -15,7 +15,7 @@ class videoModel_View(BaseModel):
     long: float
     category: str
     genre: str
-    title: str
+    review: str
     description: str
     pros: list
     cons: list
@@ -36,7 +36,7 @@ class videoModel_Post(BaseModel):
     long: float
     category: str
     genre: str
-    title: str
+    review: str
     description: str
     pros: list
     cons: list
