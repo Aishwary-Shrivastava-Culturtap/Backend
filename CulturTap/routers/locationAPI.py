@@ -1,4 +1,5 @@
 from .. import *
+from ..admin.credentials import KM
 from ..utils import address_finder_full, lat_long_difference
 
 router = APIRouter(tags=['Location'])
@@ -14,7 +15,8 @@ def get_data(lat: str,long:str):
 @router.get("/compare-location", status_code=status.HTTP_200_OK,)
 def get_data(lat1: float,long1:float,lat2:float,long2:float):
     try:
-        result={"value":True} if lat_long_difference((lat1,long1),(lat2,long2)) <=1 else {"value":False}
+        result={"value":True} if lat_long_difference((lat1,long1),(lat2,long2)) <=KM else {"value":False}
+        print(lat_long_difference((lat1,long1),(lat2,long2)))
         return result
     except Exception as e:
         print(e)

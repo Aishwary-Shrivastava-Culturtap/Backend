@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     APP_ID: str
     APP_CERTIFICATE: str
     TOKEN: str
+    KM : float
 
     class Config:
         env_file = r"CulturTap\admin\.env"
@@ -24,6 +25,7 @@ class Settings(BaseSettings):
 settings = Settings()
 
 TOKEN = settings.TOKEN
+KM = settings.KM
 
 # Database
 DB_URL = settings.DB_URL

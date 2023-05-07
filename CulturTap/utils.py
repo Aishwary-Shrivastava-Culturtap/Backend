@@ -21,7 +21,7 @@ def convert24(str1: str) -> float:
 
 def lat_long_difference(coord1: tuple, coord2: tuple):
     import geopy.distance
-    return round(geopy.distance.geodesic(coord1, coord2).km, 2)
+    return round(geopy.distance.geodesic(coord1, coord2).km, 4)
 
 
 def address_finder(lat, long):
